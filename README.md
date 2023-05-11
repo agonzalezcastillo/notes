@@ -1,5 +1,20 @@
 # mongodb-panache-notes
 
+> **_NOTE:_** you will need a local mongo instance to be able to run the project, there is a docker-compose.yml file that auto creates it for you using:
+
+```shell script
+docker-compose up
+```
+> (you need to have docker-compose installed in your system)
+
+> **_NOTE:_** if you dont wat to create too many notes manually, there is an exposed endpoint
+```shell script
+[POST] /populate
+```
+that in the matter of around 20 secs will populate the notes collection with 100k records
+
+##
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
