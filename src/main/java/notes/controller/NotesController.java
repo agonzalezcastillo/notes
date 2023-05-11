@@ -46,6 +46,7 @@ public class NotesController {
     }
 
     @PUT
+    @Path("/{id}")
     public Response update(@PathParam("id") String id, Note note){
         return notesService.updateNote(id,note)
                 .map(updatedNote -> Response.ok(updatedNote).build())

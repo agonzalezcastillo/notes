@@ -7,7 +7,6 @@ import notes.model.entity.Note;
 import notes.repository.NoteRepository;
 import org.bson.types.ObjectId;
 
-import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +28,7 @@ public class NotesServiceImpl implements NotesService{
     @Override
     public Optional<Note> findByTitle(String title) {
         if(title.isBlank() || title.isEmpty()){
+            Log.warn("NotesServiceImpl.findByTitle - title param cannot be empty");
             return Optional.empty();
         }
         return noteRepository.find("title",title).firstResultOptional();
@@ -40,8 +40,14 @@ public class NotesServiceImpl implements NotesService{
     }
 
     @Override
-    public String persistNote(Note note) throws InvalidParameterException {
+    public String persistNote(Note note) {
+        if(note == null){
+            Log.error("NotesServiceImpl.persistNote - NULL param");
+            return null;
+        }
+
         if(note.getTitle().isEmpty() || note.getBody().isEmpty()){
+            Log.warn("NotesServiceImpl.persistNote - title/body cannot be empty");
             return null;
         }
         note.setCreatedAt(LocalDateTime.now());
@@ -51,24 +57,28 @@ public class NotesServiceImpl implements NotesService{
     }
 
     @Override
-    public Optional<Note> updateNote(String id,Note note) throws InvalidParameterException{
+    public Optional<Note> updateNote(String id,Note note) {
         if(note.getTitle().isEmpty() || note.getBody().isEmpty()){
-            throw new InvalidParameterException();
+            Log.warn("NotesServiceImpl.updateNote - title/body cannot be empty");
+            return Optional.empty();
         }
 
-        var optionalNote = this.findById(id);
-        if(optionalNote.isPresent()) {
+        var existingNote = this.findById(id);
+        if(existingNote.isPresent()) {
+            note.setId(existingNote.get().getId());
+            note.setCreatedAt(existingNote.get().getCreatedAt());
             note.setLastModifiedAt(LocalDateTime.now());
-            noteRepository.persistOrUpdate(note);
+            noteRepository.update(note);
             return Optional.of(note);
         }
         return Optional.empty();
     }
 
     @Override
-    public Boolean deleteNote(String id) throws InvalidParameterException {
+    public Boolean deleteNote(String id) {
         if(id.isBlank() || id.isEmpty()){
-            throw new InvalidParameterException();
+            Log.warn("NotesServiceImpl.deleteNote - id cannot be empty");
+            return null;
         }
         return noteRepository.deleteById(new ObjectId(id));
     }
@@ -78,7 +88,7 @@ public class NotesServiceImpl implements NotesService{
         Log.info("starting population of DB");
         long startInMillis = System.currentTimeMillis();
         new Thread(() -> {
-            for (int i = 0; i < 49_999; i++) {
+            for (int i = 0; i < 24_999; i++) {
                 Note note = Note.builder()
                         .title("title"+i)
                         .body("body"+i)
@@ -88,7 +98,29 @@ public class NotesServiceImpl implements NotesService{
                 noteRepository.persistOrUpdate(note);
             }
         }).start();
-        for (int i = 50_000; i < 99_999; i++) {
+        new Thread(() -> {
+            for (int i = 25_000; i < 49_999; i++) {
+                Note note = Note.builder()
+                        .title("title"+i)
+                        .body("body"+i)
+                        .createdAt(LocalDateTime.now())
+                        .lastModifiedAt(LocalDateTime.now())
+                        .build();
+                noteRepository.persistOrUpdate(note);
+            }
+        }).start();
+        new Thread(() -> {
+            for (int i = 50_000; i < 74_999; i++) {
+                Note note = Note.builder()
+                        .title("title"+i)
+                        .body("body"+i)
+                        .createdAt(LocalDateTime.now())
+                        .lastModifiedAt(LocalDateTime.now())
+                        .build();
+                noteRepository.persistOrUpdate(note);
+            }
+        }).start();
+        for (int i = 75_000; i < 99_999; i++) {
             Note note = Note.builder()
                     .title("title"+i)
                     .body("body"+i)
@@ -98,7 +130,7 @@ public class NotesServiceImpl implements NotesService{
             noteRepository.persistOrUpdate(note);
         }
         long endInMillis = System.currentTimeMillis();
-        Log.info(" population of DB finished in :" + (endInMillis-startInMillis));
+        Log.info(" population of DB finished in :" + (endInMillis-startInMillis) + "ms.");
 
         return true;
     }
