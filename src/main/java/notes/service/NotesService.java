@@ -9,7 +9,7 @@ public interface NotesService {
 
     Optional<Note> findById(String id);
 
-    Optional<Note> findByTitle(String title);
+    List<Note> findByTitle(String title);
 
     List<Note> findAllNotes();
 

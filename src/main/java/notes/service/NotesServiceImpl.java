@@ -26,12 +26,12 @@ public class NotesServiceImpl implements NotesService{
     }
 
     @Override
-    public Optional<Note> findByTitle(String title) {
+    public List<Note> findByTitle(String title) {
         if(title.isBlank() || title.isEmpty()){
             Log.warn("NotesServiceImpl.findByTitle - title param cannot be empty");
-            return Optional.empty();
+            return null;
         }
-        return noteRepository.find("title",title).firstResultOptional();
+        return noteRepository.list("title",title);
     }
 
     @Override

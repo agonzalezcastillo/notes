@@ -7,6 +7,8 @@ import jakarta.ws.rs.core.Response;
 import notes.model.entity.Note;
 import notes.service.NotesService;
 
+import java.util.List;
+
 
 @Path("/notes")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -32,9 +34,14 @@ public class NotesController {
     @GET
     @Path("/search")
     public Response getByTitle(@QueryParam("title") String title){
-        return notesService.findByTitle(title)
-                .map(note -> Response.ok(note).build())
-                .orElse(Response.status(Response.Status.NOT_FOUND).build());
+        List<Note> notes = notesService.findByTitle(title);
+
+        if(notes == null){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } else if (notes.size() == 0) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(notes).build();
     }
 
     @POST
