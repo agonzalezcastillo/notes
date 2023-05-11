@@ -88,7 +88,8 @@ public class NotesServiceImpl implements NotesService{
         Log.info("starting population of DB");
         long startInMillis = System.currentTimeMillis();
         new Thread(() -> {
-            for (int i = 0; i < 24_999; i++) {
+            Log.info("starting population of DB -  thread1");
+            for (int i = 0; i <= 24_999; i++) {
                 Note note = Note.builder()
                         .title("title"+i)
                         .body("body"+i)
@@ -99,7 +100,8 @@ public class NotesServiceImpl implements NotesService{
             }
         }).start();
         new Thread(() -> {
-            for (int i = 25_000; i < 49_999; i++) {
+            Log.info("starting population of DB -  thread2");
+            for (int i = 25_000; i <= 49_999; i++) {
                 Note note = Note.builder()
                         .title("title"+i)
                         .body("body"+i)
@@ -110,7 +112,8 @@ public class NotesServiceImpl implements NotesService{
             }
         }).start();
         new Thread(() -> {
-            for (int i = 50_000; i < 74_999; i++) {
+            Log.info("starting population of DB -  thread3");
+            for (int i = 50_000; i <= 74_999; i++) {
                 Note note = Note.builder()
                         .title("title"+i)
                         .body("body"+i)
@@ -120,7 +123,7 @@ public class NotesServiceImpl implements NotesService{
                 noteRepository.persistOrUpdate(note);
             }
         }).start();
-        for (int i = 75_000; i < 99_999; i++) {
+        for (int i = 75_000; i <= 99_999; i++) {
             Note note = Note.builder()
                     .title("title"+i)
                     .body("body"+i)
